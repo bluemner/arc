@@ -7,7 +7,17 @@
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Launch Program",
+			"name": "Server",
+			"program": "${workspaceRoot}/server/main.js",
+			"cwd": "${workspaceRoot}",
+			"args": [
+				"${workspaceRoot}"
+			]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Webpack",
 			"program": "${workspaceRoot}\\node_modules\\webpack-dev-server\\bin\\webpack-dev-server.js",
 			"args": [
 				"--port",

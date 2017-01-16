@@ -1,0 +1,10 @@
+{
+	//Database:
+	"database_name": "ARC",
+	"database_username": "arc_admin",
+	"database_password": "arc_password",
+	"database_address": "localhost",
+	"database_port": 3007,
+	//API:
+	"api_port": 8081
+}
