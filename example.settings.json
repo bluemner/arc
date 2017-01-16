@@ -3,6 +3,6 @@
 	"database_username": "arc_admin",
 	"database_password": "arc_password",
 	"database_host": "localhost",
-	"database_port": 3007,
+	"database_port": 3306,
 	"api_port": 8081
 }
