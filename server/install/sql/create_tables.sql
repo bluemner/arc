@@ -4,7 +4,8 @@
          Else you will face a 99% chance of getting hacked (which sucks....)
 
    create database ARC;
-   grant all privileges on ARC.* to 'arc_admin'@'localhost' identified by "arc_password"; 
+   grant all privileges on ARC.* to 'arc_admin'@'localhost' identified by "arc_password";
+   flush privileges;
  */
 
 
