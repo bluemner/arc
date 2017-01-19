@@ -4,17 +4,17 @@ let Base = require('./base');
 Base = Base.Base;
 
 /**
- * @desc instance of process that handels all the database connects 
+ * @desc instance of state that handels all the database connects 
  * @extends Base
  */
-class Process extends Base {
+class State extends Base {
 	constructor(settings) {
 		super(settings);
 	}
 
 	/**
-	 * Get an instance of type process
-	 * @param {INT} id - process id 
+	 * Get an instance of type state
+	 * @param {INT} id - state id 
 	 * @param {function} after - lambda promiss function (results, fields)
 	 * @override 
 	 */
@@ -22,7 +22,7 @@ class Process extends Base {
 		id = Number.parseInt(id);
 		this.open();
 		if (id) {
-			let _query = "Select * From Process AS P WHERE P.id ==" + id + ";"
+			let _query = "Select * From State AS P WHERE P.id ==" + id + ";"
 			this.connection.query(_query, function (error, results, fields) {
 				if (error) {
 					console.log(error);
@@ -30,8 +30,9 @@ class Process extends Base {
 				};
 				after(results, fields);
 			});
+
 		} else {
-			let _query = "Select * From Process"
+			let _query = "Select * From State"
 			this.connection.query(_query, function (error, results, fields) {
 				if (error) {
 					console.log(error);
@@ -44,18 +45,18 @@ class Process extends Base {
 	}
 
 	/**
-	 * Add an instance of process to the database
-	 * @param {object} process - process to add to the database
+	 * Add an instance of state to the database
+	 * @param {object} state - state to add to the database
 	 * @param {function} after - lambda promiss function (results, fields)
-	 * @override 
+	 * @override
 	 */
-	add(process, after) {
-		if (!process) {
+	add(state, after) {
+		if (!state) {
 			throw "Bad Request";
 		}
 		this.open();
-		let _query = "INSERT Process SET name = ?,current_state = ?,owner = ?,created = ?,completed = ?,active = ?";
-		let _values = [process.name, process.current_state, process.owner, process.created, process.completed, process.active];
+		let _query = "INSERT State SET name = ?,process = ?,owner = ?,created = ?,completed = ?,active = ?";
+		let _values = [state.name, state.process, state.owner, state.created, state.completed, state.active];
 		this.connection.query(_query, _values, function (error, results, fields) {
 			if (error) {
 				console.log(error);
@@ -67,32 +68,32 @@ class Process extends Base {
 		});
 		this.close();
 	}
+
 	/**
-	 * Delete an instance of type process from database
-	 * @param {INT} id - process id 
+	 * Delete an instance of type state from database
+	 * @param {INT} id - state id 
 	 * @param {function} after - lambda promiss function (results, fields)
-	 * @override 
+	 * @override
 	 */
 	delete(id, after) {
 		if (!id) {
 			throw "Bad Request";
 		}
-
 	}
 
 	/**
-	 * Update an instance of process to the database
-	 * @param {object} process - process to add to the database
+	 * Update an instance of state to the database
+	 * @param {object} state - state to add to the database
 	 * @param {function} after - lambda promiss function (results, fields)
 	 * @override
 	 */
-	update(process, after) {
-		if (!process) {
+	update(state, after) {
+		if (!state) {
 			throw "Bad Request";
 		}
 
-		let _query = "UPDATE Process SET name = ?,current_state = ?,owner = ?,created = ?,completed = ?,active = ? WHERE id=" + process.id + ";"
-		let _values = [process.name, process.current_state, process.owner, process.created, process.completed, process.active];
+		let _query = "UPDATE State SET name = ?,process = ?,owner = ?,created = ?,completed = ?,active = ? WHERE id=" + state.id + ";"
+		let _values = [state.name, state.process, state.owner, state.created, state.completed, state.active];
 		this.connection.query(_query, _values, function (error, results, fields) {
 			if (error) {
 				console.log(error);
@@ -101,7 +102,8 @@ class Process extends Base {
 			after(results, fields);
 		});
 	}
+
 };
 module.exports = {
-	Process
+	State
 }

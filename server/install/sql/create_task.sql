@@ -15,4 +15,4 @@
  *║active                        │BIT             ║
  *╚══════════════════════════════╧════════════════╝
  */
- CREATE TABLE Task (id INT , name VARCHAR(50), task_type, INT);
+ --CREATE TABLE Task (id INT , name VARCHAR(50), task_type, INT);

@@ -39,7 +39,7 @@ connection.query(sql_install, function (error, results, fields) {
 		console.log(error);
 		throw error
 	};
-	console.log('The solution is: ', results[0].solution);
+	console.log("Table <create_process> Created");
 });
 
 sql_install = fs.readFileSync('./sql/create_state.sql', 'utf8');
@@ -49,9 +49,10 @@ connection.query(sql_install, function (error, results, fields) {
 		console.log(error);
 		throw error
 	};
-	console.log('The solution is: ', results[0].solution);
+	console.log("Table <create_state> Created");
 });
 
+/*
 sql_install = fs.readFileSync('./sql/create_task.sql', 'utf8');
 console.log(sql_install);
 connection.query(sql_install, function (error, results, fields) {
@@ -61,3 +62,4 @@ connection.query(sql_install, function (error, results, fields) {
 	};
 	console.log('The solution is: ', results[0].solution);
 });
+*/

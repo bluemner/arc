@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 
+/**
+ * @extends {Component}
+ */
 class Footer extends Component {
 	constructor(props) {
 		super(props);
@@ -7,11 +10,10 @@ class Footer extends Component {
 	componentWillMount() {
 	}
 	render() {
-
 		return (
-			<div className="Footer">
-				nav
-			</div>
+			<footer>
+				Footer
+			</footer>
 		);
 	}
 }
