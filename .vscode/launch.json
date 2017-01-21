@@ -18,7 +18,7 @@
 			"type": "node",
 			"request": "launch",
 			"name": "Webpack",
-			"program": "${workspaceRoot}\\node_modules\\webpack-dev-server\\bin\\webpack-dev-server.js",
+			"program": "${workspaceRoot}/node_modules/webpack-dev-server/bin/webpack-dev-server.js",
 			"args": [
 				"--port",
 				"8080",

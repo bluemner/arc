@@ -30,6 +30,13 @@ path.link {
     cursor: default;
 }
 
+path.grid {
+    fill: none;
+    stroke: #222;
+    stroke-width: 1px;
+    cursor: default;
+}
+
 path.link:hover{
     stroke: rgb(94, 196, 204);
 }
