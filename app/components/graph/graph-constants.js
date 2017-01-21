@@ -15,5 +15,11 @@ module.exports = {
 		type: {
 			defualt: 0,
 		}
+	},
+	mode:
+	{
+		read: 0,
+		edit: 1
 	}
+
 };

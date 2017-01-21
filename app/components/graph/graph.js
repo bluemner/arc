@@ -22,7 +22,9 @@ class Graph extends Component {
 				transMatrix: [1, 0, 0, 1, 100, 0],
 				width: 960,
 				height: 400
+
 			},
+			mode: constants.mode.read,
 			grid: false,
 			selectedNode: null,
 			selectedEdge: null,
@@ -68,16 +70,23 @@ class Graph extends Component {
 			this.state.mouseDownNode = this.state.graph.nodes[_id];
 			this.state.graph.nodes[_id].style = { fill: "#ff00ff" }
 			this.forceUpdate();
-		} else if (this.state.mouseDownNode) {	// Reposition if sleected
+		} else if (this.state.mouseDownNode && this.state.mode === constants.mode.edit) {	// Reposition if sleected
 
-			// let dim = event.target.getBoundingClientRect();
-			// let x = event.clientX - dim.left;
-			// let y = event.clientY - dim.top;
-			// this.state.mouseDownNode.style = undefined
-			// this.state.mouseDownNode.tx = parseInt(x);//this.state.mouseDownNode.tx - dx;
-			// this.state.mouseDownNode.ty = parseInt(y);//this.state.mouseDownNode.ty - dy;
-			// this.forceUpdate();
-			// this.state.mouseDownNode = undefined;
+			let dim = event.target.getBoundingClientRect();
+
+			let x = event.clientX - dim.left;
+			let y = event.clientY - dim.top;
+			// a*x + c*y + e;
+			let dx = this.state.graph.transMatrix[0] * x - this.state.graph.transMatrix[2] * y - this.state.graph.transMatrix[4];
+			// b*x + d*y + f
+			let dy = (-1) * this.state.graph.transMatrix[1] * x + this.state.graph.transMatrix[3] * y - this.state.graph.transMatrix[5];
+			console.log("node change(" + dx + "," + dy + ")");
+			this.state.mouseDownNode.style = undefined
+			this.state.mouseDownNode.tx = dx;//this.state.mouseDownNode.tx - dx;
+			this.state.mouseDownNode.ty = dy;//this.state.mouseDownNode.ty - dy;
+			this.state.mouseDownNode = undefined;
+			this.forceUpdate();
+
 		}
 
 
@@ -192,6 +201,9 @@ class Graph extends Component {
 			case 40://down arrow
 				this.pan(0, -50); this.forceUpdate();
 				break;
+			case 69: //e
+				if (this.state.shift) this.toggleEdit();
+				break;
 			case 71://g
 				if (this.state.shift) this.toggleGrid(); // G
 				break;
@@ -269,6 +281,8 @@ class Graph extends Component {
 	addEdges(edges) {
 		this.state.graph.edges = edges;
 	}
+
+
 	makeGrid() {
 		let _text = [];
 		let _min_x = -1 * this.state.graph.width * 2;
@@ -298,6 +312,18 @@ class Graph extends Component {
 		this.forceUpdate();
 	}
 
+	/**
+	 * @desc enables edit mode
+	 */
+	toggleEdit() {
+		this.state.mode = (this.state.mode === constants.mode.edit) ?
+			constants.mode.read : constants.mode.edit;
+		this.forceUpdate();
+	}
+
+	/**
+	 * @desc toggles display of the grid on the screen
+	 */
 	toggleGrid() {
 		this.state.grid = !this.state.grid;
 		this.forceUpdate();
@@ -355,7 +381,7 @@ class Graph extends Component {
 				<Arrow />
 
 				<g className="grid" transform={_tranform}>
-					{(this.state.grid) ? this.makeGrid() : null}
+					{(this.state.grid || this.state.mode == constants.mode.edit) ? this.makeGrid() : null}
 				</g>
 
 
