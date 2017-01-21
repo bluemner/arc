@@ -51,3 +51,24 @@ g.conceptG rect{
     stroke: #333;
     stroke-width: 2px;
 }
+
+
+  .compass{
+    fill:  #fff;
+    stroke:  #000;
+    stroke-width:  1.5;
+  }
+  .compass-button{
+    fill:  #000;
+    stroke:  #0C2C84;
+    stroke-miterlimit:	6;
+    stroke-linecap:  round;
+  }
+  .button:hover{
+    stroke-width:  2;
+  }
+  .plus-minus{
+    fill:  #fff;
+    pointer-events: none;
+  }
+

@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 
+import Arrow from './graph/arrow';
+import Conroller from './graph/controller';
 /**
  * @extends {Component}
  */
@@ -19,7 +21,12 @@ class Home extends Component {
 			circle: { r: 50 },
 			graph: {
 				nodes: [],
-				edges: []
+				edges: [],
+				pan:{x:0, y:0},
+				zoom:1.0,
+				transMatrix: [1,0,0,1,0,0],
+				width:960,
+				height:400,
 			},
 			selectedNode: null,
 			selectedEdge: null,
@@ -34,12 +41,23 @@ class Home extends Component {
 	}
 
 	make_dummy_graph() {
-		this.state.graph.nodes.push({ text: "node 1", type: 1, tx: 455, ty: 100 });
-		this.state.graph.nodes.push({ text: "node 2", type: 1, tx: 455, ty: 300 });
-		this.state.graph.nodes.push({ text: "node A", type: 0, tx: 60, ty: 60 });
-		this.state.graph.nodes.push({ text: "Start", type: 2, tx: 200, ty: 200 });
-		this.state.graph.nodes.push({ text: "State", type: 3, tx: 200, ty: 400 });
-		this.state.graph.edges.push({ source: this.state.graph.nodes[1], target: this.state.graph.nodes[0] });
+		this.state.graph.nodes.push({ text: "Start", type: 2, tx: 70, ty: 5 });
+		this.state.graph.nodes.push({ text: "node 1", type: 0, tx: 300, ty: 80 });
+		this.state.graph.nodes.push({ text: "node 2", type: 0, tx: 500, ty: 80 });
+		this.state.graph.nodes.push({ text: "node 3", type: 0, tx: 500, ty: 300 });
+
+		this.state.graph.nodes.push({ text: "end", type: 3, tx: 300, ty: 300 });
+		this.state.graph.edges.push({ source: this.state.graph.nodes[0], target: this.state.graph.nodes[1] });
+		//1->2
+		//
+		this.state.graph.edges.push({ source: this.state.graph.nodes[1], target: this.state.graph.nodes[2] });
+		this.state.graph.edges.push({ source: this.state.graph.nodes[1], target: this.state.graph.nodes[4] });
+
+		this.state.graph.edges.push({ source: this.state.graph.nodes[2], target: this.state.graph.nodes[3] });
+		this.state.graph.edges.push({ source: this.state.graph.nodes[2], target: this.state.graph.nodes[4] });
+
+		this.state.graph.edges.push({ source: this.state.graph.nodes[3], target: this.state.graph.nodes[4] });
+
 	}
 	close_to(expeted, actual, tolerance) {
 		if (Math.abs(expeted - actual) < tolerance)
@@ -66,8 +84,8 @@ class Home extends Component {
 
 
 		}
-
 	}
+
 	onDragHandler(event) {
 
 		let dim = event.target.getBoundingClientRect();
@@ -110,6 +128,7 @@ class Home extends Component {
 		}
 
 	}
+
 	onMouseUpHandler(event) {
 		let dim = event.target.getBoundingClientRect();
 		let x = event.clientX - dim.left;
@@ -124,12 +143,14 @@ class Home extends Component {
 		//this.state.mouseDownNode = undefined;
 
 	}
+
 	onClickHandler(event) {
 
 		let _id = (event.target.id) ? event.target.id.split("_")[1] : undefined;
 		if (_id) {
 			if (this.state.mouseDownNode) {
 				this.state.mouseDownNode.style = undefined;
+				this.forceUpdate();
 			}
 			if (this.state.mouseDownNode == this.state.graph.nodes[_id]) {
 				this.state.mouseDownNode.style = undefined;
@@ -142,18 +163,19 @@ class Home extends Component {
 			this.forceUpdate();
 		} else if (this.state.mouseDownNode) {	// Reposition if sleected
 
-			let dim = event.target.getBoundingClientRect();
-			let x = event.clientX - dim.left;
-			let y = event.clientY - dim.top;
-			this.state.mouseDownNode.style = undefined
-			this.state.mouseDownNode.tx = parseInt(x);//this.state.mouseDownNode.tx - dx;
-			this.state.mouseDownNode.ty = parseInt(y);//this.state.mouseDownNode.ty - dy;
-			this.forceUpdate();
-			this.state.mouseDownNode = undefined;
+			// let dim = event.target.getBoundingClientRect();
+			// let x = event.clientX - dim.left;
+			// let y = event.clientY - dim.top;
+			// this.state.mouseDownNode.style = undefined
+			// this.state.mouseDownNode.tx = parseInt(x);//this.state.mouseDownNode.tx - dx;
+			// this.state.mouseDownNode.ty = parseInt(y);//this.state.mouseDownNode.ty - dy;
+			// this.forceUpdate();
+			// this.state.mouseDownNode = undefined;
 		}
 
 
 	}
+
 	onDoubleClickHandler(event) {
 
 		let _id = (event.target.id) ? event.target.id.split("_")[1] : undefined;
@@ -174,6 +196,7 @@ class Home extends Component {
 
 
 	}
+
 	onContextMenuHandler(event) {
 		//	event.preventDefault();
 		let _id = (event.target.id) ? event.target.id.split("_")[1] : undefined;
@@ -181,41 +204,115 @@ class Home extends Component {
 
 		}
 	}
+
 	componentWillMount() {
+		//onKeyPress ={(e)=>{this.onKeyDownHandler(e)}}
 		this.make_dummy_graph();
+		document.addEventListener('keydown',(e)=>{this.onKeyDownHandler(e)});
+	}
+	componentWillUnmount(){
+		document.removeEventListener('keydown');
+	}
+	/**
+	 * @param {object} - value
+	 */
+	getStyle(node) {
+
+	}
+	onWheelHandler(event){
+		if(event.deltaY>0){
+			//this.state.graph.zoom -=.25;
+			//this.forceUpdate();
+			this.zoom(0.8);
+			
+		}else if( event.deltaY< 0){
+			// this.state.graph.zoom +=.25;
+			// this.forceUpdate();
+			this.zoom(1.25);
+		}
+	}
+	pan(dx, dy){     	
+		this.state.graph.transMatrix[4] += dx;
+		this.state.graph.transMatrix[5] += dy;
+					
+		this.forceUpdate();
+	}
+ 	zoom(scale)
+	{
+		for (var i=0; i<this.state.graph.transMatrix.length; i++)
+		{
+			this.state.graph. transMatrix[i] *= scale;
+		}
+
+		this.state.graph.transMatrix[4] += (1-scale)*this.state.graph.width/2;
+		this.state.graph.transMatrix[5] += (1-scale)*this.state.graph.height/2;
+						
+		this.forceUpdate();
+	}
+	onKeyDownHandler(event){
+		
+		switch(event.keyCode){
+			
+			case 37://left arrow 
+				this.pan(50,0); this.forceUpdate();
+				break;
+			case 38://up arrow
+				this.pan(0,50); this.forceUpdate();
+				break;
+			case 39://right arrow
+				this.pan(-50,0); this.forceUpdate();
+				break;
+			case 40://down arrow
+				this.pan(0,-50); this.forceUpdate();
+				break;
+			default:
+				
+		}
 	}
 	render() {
+		let _scale ="matrix(" +  this.state.graph.transMatrix.join(' ') + ")";// " scale("+this.state.graph.zoom+")";
+		let _pan  = "translate("+ +this.state.graph.pan.x+" "+this.state.graph.pan.y+")";
 		return (
-			<div>
+			<div 	>
 				<h2>Arc</h2>
-				<svg width="960" height="800" style={{ border: "1px solid black" }}
+				<svg width={this.state.graph.width} height={this.state.graph.height} style={{ border: "1px solid black" }}
 					onDoubleClick={(e) => { this.onDoubleClickHandler(e) } }
 					onClick={(e) => { this.onClickHandler(e) } }
 					onContextMenu={(e) => this.onContextMenuHandler(e)}
+					onWheel={(e)=>{ this.onWheelHandler(e)}}
+				    
 					>
-					<defs>
-						<marker id="end-arrow" viewBox="0 -5 10 10" refX="32" markerWidth="3.5" markerHeight="3.5" orient="auto">
-							<path d="M0,-5L10,0L0,5"></path>
-						</marker>
-						<marker id="mark-end-arrow" viewBox="0 -5 10 10" refX="7" markerWidth="3.5" markerHeight="3.5" orient="auto">
-							<path d="M0,-5L10,0L0,5"></path>
-						</marker>
-					</defs>
-
-					<g className="graph">
+				
+					<Arrow />
+					{
+						
+					}
+					<g className="graph" transform={_scale}>
 						{
 							this.state.graph.edges.map((edge, i) => {
-								let _d = "M" + edge.source.tx + "," + edge.source.ty + "L" + edge.target.tx + "," + edge.target.ty;
+								let y2 = edge.target.ty;
+								let y1 = edge.source.ty;
+								let x2 = edge.target.tx;
+								let x1 = edge.source.tx;
+								let dy = y2 - y1;
+								let dx = x2 - x1;
+								
+								let augemnet_x = (dx<0)?0: 50;
+								
+								let augemnet_y=(dy<0)?0: 50;
+							let _d = "M" + edge.source.tx+ "," + edge.source.ty + "L" + edge.target.tx + "," + edge.target.ty;
+								if (edge.source.type !== 0)
+									_d = "M" + edge.source.tx + "," + (edge.source.ty + 75) + "L" + edge.target.tx + "," + edge.target.ty;
 								return (<g key={i}>
 									<path className="link" d={_d} style={{ "markerEnd": "url(\"#end-arrow\")" }}></path>
 								</g>)
 							})
 						}
 					</g>
-					<g>
+					<g transform={_scale}>
 						{
 							this.state.graph.nodes.map((node, i) => {
-								let _translate = "translate(" + node.tx + "," + node.ty + ")";
+							let _translate = "translate(" + (node.tx ) + "," + (node.ty)   + ")";
 								let _style = (node.style) ? node.style : {};
 								_style = (node.active) ? {} : _style;
 								switch (node.type) {
@@ -244,8 +341,8 @@ class Home extends Component {
 										</g>)
 									case 0:
 									default: return (<g key={i} className="conceptG" transform={_translate} >
-										<rect id={"node_" + i} x="0" y="0" width="100" height="100" rx="10" ry="10" style={_style}></rect>
-										<text textAnchor="middle" dy="50" dx="50">
+										<rect id={"node_" + i} x="-50" y="-50" width="100" height="100" rx="10" ry="10" style={_style}></rect>
+										<text textAnchor="middle">
 											<tspan>{node.text}</tspan>
 
 										</text>
@@ -254,70 +351,11 @@ class Home extends Component {
 							})
 						}
 					</g>
+
+					<Conroller pan={this.pan.bind(this)} zoom ={this.zoom.bind(this)}/>
 				</svg>
 			</div >
 		)
 	}
 }
 export default Home;
-
-/*
-		<svg width="960" height="800">
-					<defs>
-						<marker id="end-arrow" viewBox="0 -5 10 10" refX="32" markerWidth="3.5" markerHeight="3.5" orient="auto">
-							<path d="M0,-5L10,0L0,5"></path>
-						</marker>
-						<marker id="mark-end-arrow" viewBox="0 -5 10 10" refX="7" markerWidth="3.5" markerHeight="3.5" orient="auto">
-							<path d="M0,-5L10,0L0,5"></path>
-						</marker>
-					</defs>
-					<g className="graph">
-						<path className="link dragline hidden" d="M0,0L0,0" style={{ "markerEnd": "url(\"#mark-end-arrow\")" }}></path>
-						<g>
-							<path className="link" d="M455,300L455,100" style={{ "markerEnd": "url(\"#end-arrow\")" }}></path>
-						</g>
-
-						<g>
-							<path className="link" d="M200,500L455,100" style={{ "markerEnd": "url(\"#end-arrow\")" }}></path>
-						</g>
-						<g>
-							<path className="link" d="M650,500L455,100" style={{ "markerEnd": "url(\"#end-arrow\")" }}></path>
-						</g>
-						{
-							//Nodes
-						}
-						<g>
-							<g className="conceptG" transform="translate(455,100)">
-								<circle r="50"></circle>
-								<text textAnchor="middle" dy="-7.5">
-									<tspan>new</tspan>
-									<tspan x="0" dy="15">concept</tspan>
-								</text>
-							</g>
-							<g className="conceptG" transform="translate(455,300)">
-								<circle r="50"></circle>
-								<text textAnchor="middle" dy="-7.5">
-									<tspan>new</tspan>
-									<tspan x="0" dy="15">concept</tspan>
-								</text>
-							</g>
-
-							<g className="conceptG" transform="translate(200,500)">
-								<circle r="50"></circle>
-								<text textAnchor="middle" dy="-7.5">
-									<tspan>new</tspan>
-									<tspan x="0" dy="15">concept</tspan>
-								</text>
-							</g>
-
-							<g className="conceptG" transform="translate(600,500)">
-								<rect x="0" y="0" width="100" height="100" rx="10" ry="10"></rect>
-								<text textAnchor="middle" dy="50" dx="50">
-									<tspan>new</tspan>
-									<tspan x="50" dy="15">concept</tspan>
-								</text>
-							</g>
-						</g>
-					</g>
-				</svg>
-				*/
