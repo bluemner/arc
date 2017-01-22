@@ -15,6 +15,7 @@ class Home extends Component {
 				nodes: [],
 				edges: [],
 			},
+			selectedNode: undefined
 		}
 	}
 	componentWillMount() {
@@ -40,8 +41,19 @@ class Home extends Component {
 
 	}
 	addNode(text) {
+		this.state.graph.nodes.push({ text: text, type: constants.node.type.state, tx: 0, ty: 0 });
+		this.forceUpdate();
+	}
+	updateNode(node) {
 
-		this.state.graph.nodes.push({ text: text, type: constants.node.type.state, tx: 300, ty: 80 });
+	}
+	selectedNode(node) {
+		this.state.selectedNode = node;
+		if (node) {
+
+		} else {
+
+		}
 		this.forceUpdate();
 	}
 
@@ -50,9 +62,10 @@ class Home extends Component {
 	 */
 	render() {
 		return (
-			<div 	>
+			<div>
 				<h2>Arc</h2>
 				<Graph
+					selectedNode={this.selectedNode.bind(this)}
 					edges={this.state.graph.edges}
 					nodes={this.state.graph.nodes}
 					/>

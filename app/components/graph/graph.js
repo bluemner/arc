@@ -55,6 +55,8 @@ class Graph extends Component {
 	// EVENTS
 
 	onClickHandler(event) {
+		const {	selectedNode = () => { } } = this.props;
+
 		let dim = event.target.getBoundingClientRect();
 
 		const x = event.clientX - dim.left;
@@ -67,6 +69,7 @@ class Graph extends Component {
 			if (this.state.mouseDownNode) {
 				this.state.mouseDownNode.style = undefined;
 				this.forceUpdate();
+
 			}
 			if (this.state.mouseDownNode == this.state.graph.nodes[_id]) {
 				this.state.mouseDownNode.style = undefined;
@@ -76,6 +79,7 @@ class Graph extends Component {
 			}
 			this.state.mouseDownNode = this.state.graph.nodes[_id];
 			this.state.graph.nodes[_id].style = { fill: "#ff00ff" }
+			selectedNode(this.state.mouseDownNode);
 			this.forceUpdate();
 		} else if (this.state.mouseDownNode && this.state.mode === constants.mode.edit) {	// Reposition if sleected
 
@@ -110,6 +114,11 @@ class Graph extends Component {
 			// this.state.mouseDownNode = undefined;
 			// this.forceUpdate();
 
+		} else if (this.state.mouseDownNode) {
+			selectedNode(undefined);
+			this.state.mouseDownNode.style = undefined;
+			this.state.mouseDownNode = undefined;
+			this.forceUpdate();
 		}
 
 
@@ -393,8 +402,9 @@ class Graph extends Component {
 	/**
 	 * @param {Array} nodes array of node objects
 	 * @param {Array} edges array of edge objects
-	 * @param {function} addNode - add node fuction
-	 * @param {fuction} deleteNode - delete node function
+	 * @param {function} addNode add node function
+	 * @param {function} deleteNode delete node function
+	 * @param {function} selectedNode selected node function
 	 * @param {bool} __read allow user to see graph
 	 * @param {bool} __write allows user to set edit controlls
 	 * @param {bool} __delete allows user to see delete controlls
@@ -405,7 +415,12 @@ class Graph extends Component {
 			nodes = [],
 			edges = [],
 			addNode = () => { },
+			updateNode = () => { },
 			deleteNode = () => { },
+			selectedNode = () => { },
+			addEdge = () => { },
+			delteEdge = () => { },
+			selectedEdge = () => { },
 			__read = true,
 			__write = true,
 			__delete = true,
