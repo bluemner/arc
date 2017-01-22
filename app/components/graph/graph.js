@@ -18,6 +18,7 @@ class Graph extends Component {
 				nodes: [],
 				edges: [],
 				pan: { x: 0, y: 0 },
+
 				zoom: 1.0,
 				transMatrix: [1, 0, 0, 1, 100, 0],
 				width: 960,
@@ -54,6 +55,12 @@ class Graph extends Component {
 	// EVENTS
 
 	onClickHandler(event) {
+		let dim = event.target.getBoundingClientRect();
+
+		const x = event.clientX - dim.left;
+		const y = event.clientY - dim.top;
+
+		if (x > this.state.graph.width || y > this.state.graph.height) { return }
 
 		let _id = (event.target.id) ? event.target.id.split("_")[1] : undefined;
 		if (_id) {
@@ -72,20 +79,36 @@ class Graph extends Component {
 			this.forceUpdate();
 		} else if (this.state.mouseDownNode && this.state.mode === constants.mode.edit) {	// Reposition if sleected
 
-			let dim = event.target.getBoundingClientRect();
 
-			let x = event.clientX - dim.left;
-			let y = event.clientY - dim.top;
-			// a*x + c*y + e;
-			let dx = this.state.graph.transMatrix[0] * x - this.state.graph.transMatrix[2] * y - this.state.graph.transMatrix[4];
-			// b*x + d*y + f
-			let dy = (-1) * this.state.graph.transMatrix[1] * x + this.state.graph.transMatrix[3] * y - this.state.graph.transMatrix[5];
-			console.log("node change(" + dx + "," + dy + ")");
-			this.state.mouseDownNode.style = undefined
-			this.state.mouseDownNode.tx = dx;//this.state.mouseDownNode.tx - dx;
-			this.state.mouseDownNode.ty = dy;//this.state.mouseDownNode.ty - dy;
-			this.state.mouseDownNode = undefined;
-			this.forceUpdate();
+			//Note haven't got this working might fix later
+			// let a = this.state.graph.transMatrix[0];
+			// let b = this.state.graph.transMatrix[1];
+			// let c = this.state.graph.transMatrix[2];
+			// let d = this.state.graph.transMatrix[3];
+			// let e = this.state.graph.transMatrix[4];
+			// let f = this.state.graph.transMatrix[5];
+
+			// // a*x + c*y + e;
+
+			// let _matrix = [[a, c, e], [b, d, f], [0, 0, 1]];
+
+
+			// let dx = ((a * x) + (c * y) - e);  // (a * x + c * y - e);
+
+			// // b*x + d*y + f
+			// let dy = b * x + d * y - f; // y + f * this.state.graph.zoom;
+			// console.log(this.state.graph.transMatrix);
+			// console.log("change Point(" + dx + "," + dy + ") zoom:" + this.state.graph.zoom);
+
+
+			// this.state.mouseDownNode.style = undefined
+
+
+			// //this.state.mouseDownNode.tx = dx;;
+			// //Ethis.state.mouseDownNode.ty = dy;//this.state.mouseDownNode.ty - dy;
+
+			// this.state.mouseDownNode = undefined;
+			// this.forceUpdate();
 
 		}
 
@@ -201,11 +224,23 @@ class Graph extends Component {
 			case 40://down arrow
 				this.pan(0, -50); this.forceUpdate();
 				break;
+			case 65: //a
+				if (this.state.mode == constants.mode.edit) this.moveNode(-50, 0);
+				break;
+			case 68: //d
+				if (this.state.mode == constants.mode.edit) this.moveNode(50, 0);
+				break;
 			case 69: //e
 				if (this.state.shift) this.toggleEdit();
 				break;
 			case 71://g
 				if (this.state.shift) this.toggleGrid(); // G
+				break;
+			case 83: //s
+				if (this.state.mode == constants.mode.edit) this.moveNode(0, 50);
+				break;
+			case 87: //w
+				if (this.state.mode == constants.mode.edit) this.moveNode(0, -50);
 				break;
 			default:
 
@@ -299,13 +334,21 @@ class Graph extends Component {
 		return _text;
 
 	}
+	moveNode(dx, dy) {
+		if (this.state.mouseDownNode) {
+			this.state.mouseDownNode.tx = this.state.mouseDownNode.tx + dx;
+			this.state.mouseDownNode.ty = this.state.mouseDownNode.ty + dy;
+			this.forceUpdate();
+		}
+	}
 	/**
 	 * @desc change the camera's focus
 	 * @param {Number} dx - change in the x postition
 	 * @param {Number} dy = change in the y postition
 	 */
 	pan(dx, dy) {
-
+		this.state.graph.pan.x = dx;
+		this.state.graph.pan.y = dy;
 		this.state.graph.transMatrix[4] += dx;
 		this.state.graph.transMatrix[5] += dy;
 
@@ -334,6 +377,7 @@ class Graph extends Component {
 	 * @param {Number} scale zoom scale
 	 */
 	zoom(scale) {
+		this.state.graph.zoom *= scale;
 		for (var i = 0; i < this.state.graph.transMatrix.length; i++) {
 			this.state.graph.transMatrix[i] *= scale;
 		}

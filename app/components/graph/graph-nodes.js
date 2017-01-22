@@ -7,6 +7,24 @@ class GraphNode extends Component {
 	constructor(props) {
 		super(props);
 	}
+
+	getText(text) {
+
+		let _text = [];
+		let _words = "";
+		text.split(" ").map((word, i) => {
+			if ((_words.length + word.length) > 15) {
+				_text.push(<tspan key={_text.length + 1}>{_words}</tspan>)
+				_words = "";
+				_words += " " + word;
+			} else {
+				_words += " " + word;
+			}
+
+		})
+		_text.push(<tspan key={_text.length + 1} x={0} y={_text.length * 15}>{_words}</tspan>);
+		return _text //<tspan>{text}</tspan>
+	}
 	/**
 	 * @param {object} this.props.node - node object 
 	 */
@@ -23,7 +41,7 @@ class GraphNode extends Component {
 					<circle id={"node_" + i} r="50" style={_style}></circle>
 					<circle id={"node_" + i} r="30" stroke="black" strokeWidth="3" style={{ fill: "red" }} />
 					<text textAnchor="middle" dy="0">
-						<tspan>{node.text}</tspan>
+						{this.getText(node.text)}
 					</text>
 				</g>)
 			case constants.node.type.rombus:
@@ -31,21 +49,24 @@ class GraphNode extends Component {
 				return (<g className="conceptG" transform={_translate} >
 					<rect id={"node_" + i} x="0" y="0" width="100" height="100" rx="10" ry="10" style={_style} transform="rotate(45)"></rect>
 					<text textAnchor="middle" dy="75" dx="0">
-						<tspan>{node.text}</tspan>
+						{this.getText(node.text)}
 					</text>
 				</g>)
 			case constants.node.type.start:
 				return (<g className="conceptG" transform={_translate}  >
 					<circle id={"node_" + i} r="50" style={_style}></circle>
 					<text textAnchor="middle" dy="0">
-						<tspan>{node.text}</tspan>
+						{this.getText(node.text)}
+
 					</text>
 				</g>)
 			case constants.node.type.defualt:
 			default: return (<g className="conceptG" transform={_translate} >
 				<rect id={"node_" + i} x="-50" y="-50" width="100" height="100" rx="10" ry="10" style={_style}></rect>
 				<text textAnchor="middle">
-					<tspan>{node.text}</tspan>
+					{
+						this.getText(node.text)
+					}
 
 				</text>
 			</g>)

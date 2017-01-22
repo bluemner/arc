@@ -22,9 +22,9 @@ class Home extends Component {
 	}
 	make_dummy_graph() {
 		this.state.graph.nodes.push({ text: "Start", type: constants.node.type.start, tx: 50, ty: 50 });
-		this.state.graph.nodes.push({ text: "node 1", type: constants.node.type.state, tx: 300, ty: 50 });
-		this.state.graph.nodes.push({ text: "node 2", type: constants.node.type.state, tx: 500, ty: 50 });
-		this.state.graph.nodes.push({ text: "node 3", type: constants.node.type.state, tx: 500, ty: 300 });
+		this.state.graph.nodes.push({ text: "Application", type: constants.node.type.state, tx: 300, ty: 50 });
+		this.state.graph.nodes.push({ text: "Special Letter", type: constants.node.type.state, tx: 500, ty: 50 });
+		this.state.graph.nodes.push({ text: "Some really long text", type: constants.node.type.state, tx: 500, ty: 300 });
 
 		this.state.graph.nodes.push({ text: "end", type: constants.node.type.end, tx: 300, ty: 300 });
 		this.state.graph.edges.push({ source: this.state.graph.nodes[0], target: this.state.graph.nodes[1] });
