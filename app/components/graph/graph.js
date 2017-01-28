@@ -22,16 +22,26 @@ class Graph extends Component {
 				zoom: 1.0,
 				transMatrix: [1, 0, 0, 1, 100, 0],
 				width: 960,
-				height: 400
-
+				height: 400,
+				style: {
+					cursor: "default",
+					border: "1px solid black"
+				}
 			},
+
 			mode: constants.mode.read,
 			grid: false,
 			selectedNode: null,
 			selectedEdge: null,
+			mouseClickNode: null,
 			mouseDownNode: null,
 			mouseDownLink: null,
+			mouse: {
+				x: undefined,
+				y: undefined
+			},
 			shift: false,
+			control: false,
 		}
 
 	}
@@ -66,22 +76,22 @@ class Graph extends Component {
 
 		let _id = (event.target.id) ? event.target.id.split("_")[1] : undefined;
 		if (_id) {
-			if (this.state.mouseDownNode) {
-				this.state.mouseDownNode.style = undefined;
+			if (this.state.mouseClickNode) {
+				this.state.mouseClickNode.style = undefined;
 				this.forceUpdate();
 
 			}
-			if (this.state.mouseDownNode == this.state.graph.nodes[_id]) {
-				this.state.mouseDownNode.style = undefined;
-				this.state.mouseDownNode = undefined;
+			if (this.state.mouseClickNode == this.state.graph.nodes[_id]) {
+				this.state.mouseClickNode.style = undefined;
+				this.state.mouseClickNode = undefined;
 				this.forceUpdate();
 				return;
 			}
-			this.state.mouseDownNode = this.state.graph.nodes[_id];
+			this.state.mouseClickNode = this.state.graph.nodes[_id];
 			this.state.graph.nodes[_id].style = { fill: "#ff00ff" }
-			selectedNode(this.state.mouseDownNode);
+			selectedNode(this.state.mouseClickNode);
 			this.forceUpdate();
-		} else if (this.state.mouseDownNode && this.state.mode === constants.mode.edit) {	// Reposition if sleected
+		} else if (this.state.mouseClickNode && this.state.mode === constants.mode.edit) {	// Reposition if sleected
 
 
 			//Note haven't got this working might fix later
@@ -114,10 +124,10 @@ class Graph extends Component {
 			// this.state.mouseDownNode = undefined;
 			// this.forceUpdate();
 
-		} else if (this.state.mouseDownNode) {
+		} else if (this.state.mouseClickNode) {
 			selectedNode(undefined);
-			this.state.mouseDownNode.style = undefined;
-			this.state.mouseDownNode = undefined;
+			this.state.mouseClickNode.style = undefined;
+			this.state.mouseClickNode = undefined;
 			this.forceUpdate();
 		}
 
@@ -161,54 +171,45 @@ class Graph extends Component {
 
 	}
 
-	/**
-	 * @desc Mouse Drage  Event Listner
-	 * @param {object} event - mouse drag  dom event 
-	 */
-	onDragHandler(event) {
+	onDragStartHandler(event) {
+		console.log("Drag Start");
 
-		let dim = event.target.getBoundingClientRect();
+		let dim = event.currentTarget.getBoundingClientRect();
+
 		let x = parseInt(event.clientX - dim.left);
 		let y = parseInt(event.clientY - dim.top);
-		if (x < 0 || y < 0) return;
-		let dx = Math.abs(this.state.mouse.x - x);
-		let dy = Math.abs(this.state.mouse.y - y);
-		this.state.mouse.x = x;
-		this.state.mouse.y = y;
-		if (dx % 5 || dy % 5) return;
-		console.log("mouse drag(" + x + "," + y + ")");
-		// let dx = this.state.mouse.x + event.clientX;
-		// let dy = this.state.mouse.y + event.clientY;
 
-		//console.log(this.state.mouse.x, this.state.mouse.y);
-		//console.log("(" + this.state.mouseDownNode.tx + "," + this.state.mouseDownNode.ty + ")=>(" + dx + "," + dy + ")");
-		if (this.state.mouseDownNode) {
-			//this.state.mouseDownNode.tx += parseInt(this.state.mouse.x);//this.state.mouseDownNode.tx - dx;
-			//this.state.mouseDownNode.ty += parseInt(this.state.mouse.y);//this.state.mouseDownNode.ty - dy;
-			this.state.mouseDownNode.tx = x;
-			this.state.mouseDownNode.ty = y;
-			//this.forceUpdate();
-			// this.state.mouse.x = dx;
-			// this.state.mouse.y = dy;
+		let a = this.state.graph.transMatrix[0];
+		let b = this.state.graph.transMatrix[1];
+		let c = this.state.graph.transMatrix[2];
+		let d = this.state.graph.transMatrix[3];
+		let e = this.state.graph.transMatrix[4];
+		let f = this.state.graph.transMatrix[5];
 
+		// a*x + c*y + e;
+		let dx = ((1 / a) * x) + (c * y) - (e / a);
+		// b*x + d*y + f
+		let dy = (b * x) + ((1 / d) * y) - (f / d);
+
+		this.state.mouse.x = parseInt(dx);
+		this.state.mouse.y = parseInt(dy);
+		let _id = (event.target.id) ? event.target.id.split("_")[1] : undefined;
+		if (_id && this.state.shift) {
+			this.state.mouseDownNode = this.state.graph.nodes[_id];
+			this.state.graph.nodes[_id].style = { fill: "#7304a3" }
+			this.move = true;
+
+			this.forceUpdate();
 		}
 
+		console.log("Mouse Down(" + dx + "," + dy + ")");
 	}
 	/**
 	 * @desc Mouse Drage End Event Listner
 	 * @param {object} event - mouse drag end dom event 
 	 */
 	onDragEndHandler(event) {
-		let dim = event.target.getBoundingClientRect();
-		let x = event.clientX - dim.left;
-		let y = event.clientY - dim.top;
-		if (x < 0 || y < 0) return;
-		console.log("drag end(" + x + "," + y + ")");
-		if (this.state.mouseDownNode) {
-			this.state.mouseDownNode.tx = parseInt(x);//this.state.mouseDownNode.tx - dx;
-			this.state.mouseDownNode.ty = parseInt(y);//this.state.mouseDownNode.ty - dy;
-		}
-
+		this.onMouseUp(event);
 	}
 
 	/**
@@ -216,10 +217,25 @@ class Graph extends Component {
      * @param {object} event key down dom event
      */
 	onKeyDownHandler(event) {
+		//event.preventDefault();
 
+		//Use shift for as comand key uncomment preventDefault for ctl\command or alt\option keys
+		let mode_key = this.state.shift;
+		// MAC'S SUCK
+		if (event.metaKey) {
+			this.state.control = true;
+			console.log("macs suck");
+			return;
+		}
+		//Normal Codes
 		switch (event.keyCode) {
 			case 16: //shift
 				this.state.shift = true;
+				break;
+			case 17: //ctl
+				//case 224: //MAC's Suck command key?
+				//case 91: //MAC's Suck command key?
+				this.state.control = true;
 				break;
 			case 37://left arrow 
 				this.pan(50, 0); this.forceUpdate();
@@ -240,10 +256,10 @@ class Graph extends Component {
 				if (this.state.mode == constants.mode.edit) this.moveNode(50, 0);
 				break;
 			case 69: //e
-				if (this.state.shift) this.toggleEdit();
+				if (mode_key) this.toggleEdit();
 				break;
 			case 71://g
-				if (this.state.shift) this.toggleGrid(); // G
+				if (mode_key) this.toggleGrid(); // G
 				break;
 			case 83: //s
 				if (this.state.mode == constants.mode.edit) this.moveNode(0, 50);
@@ -262,11 +278,20 @@ class Graph extends Component {
      */
 	onKeyUpHandler(event) {
 
+		// MAC'S SUCK
+		if (event.metaKey) {
+			this.state.control = false;
+			return;
+		}
 		switch (event.keyCode) {
 			case 16: //shift
+				event.preventDefault();
 				this.state.shift = false;
 				break;
-
+			case 17:
+				event.preventDefault();
+				this.state.control = false;
+				break;
 			default:
 
 		}
@@ -276,31 +301,109 @@ class Graph extends Component {
 	 * @param {object} event - mouse down dom event 
 	 */
 	onMouseDownHandeler(event) {
+		let dim = event.currentTarget.getBoundingClientRect();
 
+		let x = parseInt(event.clientX - dim.left);
+		let y = parseInt(event.clientY - dim.top);
+
+		let a = this.state.graph.transMatrix[0];
+		let b = this.state.graph.transMatrix[1];
+		let c = this.state.graph.transMatrix[2];
+		let d = this.state.graph.transMatrix[3];
+		let e = this.state.graph.transMatrix[4];
+		let f = this.state.graph.transMatrix[5];
+
+		// a*x + c*y + e;
+		let dx = ((1 / a) * x) + (c * y) - (e / a);
+		// b*x + d*y + f
+		let dy = (b * x) + ((1 / d) * y) - (f / d);
+
+		this.state.mouse.x = parseInt(dx);
+		this.state.mouse.y = parseInt(dy);
 		let _id = (event.target.id) ? event.target.id.split("_")[1] : undefined;
-		if (_id) {
+		if (_id && this.state.shift) {
 			this.state.mouseDownNode = this.state.graph.nodes[_id];
+			this.state.graph.nodes[_id].style = { fill: "#7304a3" }
+			this.move = true;
 
-
+			this.forceUpdate();
 		}
+
+		console.log("Mouse Down(" + dx + "," + dy + ")");
+	}
+
+	/**
+	 * @desc Mouse Drage  Event Listner
+	 * @param {object} event - mouse drag  dom event 
+	 */
+	onDragHandler(event) {
+		let dim = event.currentTarget.getBoundingClientRect();
+		let x = parseInt(event.clientX - dim.left);
+		let y = parseInt(event.clientY - dim.top);
+		if (x < 0 || y < 0) { return };
+
+		let a = this.state.graph.transMatrix[0];
+		let b = this.state.graph.transMatrix[1];
+		let c = this.state.graph.transMatrix[2];
+		let d = this.state.graph.transMatrix[3];
+		let e = this.state.graph.transMatrix[4];
+		let f = this.state.graph.transMatrix[5];
+
+		// a*x + c*y + e;
+		let dx = ((1 / a) * x) + (c * y) - (e / a);
+		// b*x + d*y + f
+		let dy = (b * x) + ((1 / d) * y) - (f / d);
+
+		if (this.state.mouseDownNode) {
+			//console.log("mouse drag(" + dx + "," + dy + ")");
+			this.state.mouseDownNode.tx = dx;
+			this.state.mouseDownNode.ty = dy;
+			this.state.mouse.x = dx;
+			this.state.mouse.y = dy;
+			this.forceUpdate();
+		}
+
 	}
 	/**
 	 * @desc Mouse Up Event Listner
 	 * @param {object} event - mouse up dom event 
 	 */
 	onMouseUpHandler(event) {
-		let dim = event.target.getBoundingClientRect();
-		let x = event.clientX - dim.left;
-		let y = event.clientY - dim.top;
-		console.log("mouse up(" + x + "," + y + ")");
-		if (this.state.mouseDownNode) {
-			this.state.mouseDownNode.tx = parseInt(x);
-			this.state.mouseDownNode.ty = parseInt(y);
-		}
+		let dim = event.currentTarget.getBoundingClientRect();
+		let x = parseInt(event.clientX - dim.left);
+		let y = parseInt(event.clientY - dim.top);
 
+
+		if (this.state.mouseDownNode) {
+
+			if (x < 0 || y < 0) { return };
+
+			let a = this.state.graph.transMatrix[0];
+			let b = this.state.graph.transMatrix[1];
+			let c = this.state.graph.transMatrix[2];
+			let d = this.state.graph.transMatrix[3];
+			let e = this.state.graph.transMatrix[4];
+			let f = this.state.graph.transMatrix[5];
+
+			// a*x + c*y + e;
+			let dx = ((1 / a) * x) + (c * y) - (e / a);
+			// b*x + d*y + f
+			let dy = (b * x) + ((1 / d) * y) - (f / d);
+			this.state.mouseDownNode.tx = dx;
+			this.state.mouseDownNode.ty = dy;
+
+			this.state.mouseDownNode.style = {}
+			this.state.mouseDownNode = undefined;
+			this.forceUpdate();
+		}
+		console.log("mouse up");
+
+		this.move = undefined;
 		this.forceUpdate();
 	}
-
+	updateCursor(cursor = constants.cursor.default) {
+		this.state.graph.style.cursor = cursor;
+	}
 	/**
 	 * @desc Mouse Wheel Event Listner
 	 * @param {object} event - mouse wheel dom event 
@@ -343,10 +446,11 @@ class Graph extends Component {
 		return _text;
 
 	}
+
 	moveNode(dx, dy) {
-		if (this.state.mouseDownNode) {
-			this.state.mouseDownNode.tx = this.state.mouseDownNode.tx + dx;
-			this.state.mouseDownNode.ty = this.state.mouseDownNode.ty + dy;
+		if (this.state.mouseClickNode) {
+			this.state.mouseClickNode.tx = this.state.mouseClickNode.tx + dx;
+			this.state.mouseClickNode.ty = this.state.mouseClickNode.ty + dy;
 			this.forceUpdate();
 		}
 	}
@@ -430,11 +534,19 @@ class Graph extends Component {
 		let _tranform = "matrix(" + this.state.graph.transMatrix.join(' ') + ")";
 
 		return (
-			<svg width={this.state.graph.width} height={this.state.graph.height} style={{ border: "1px solid black" }}
+			<svg width={this.state.graph.width} height={this.state.graph.height} style={this.state.graph.style}
 				onDoubleClick={(e) => { this.onDoubleClickHandler(e) } }
 				onClick={(e) => { this.onClickHandler(e) } }
 				onContextMenu={(e) => this.onContextMenuHandler(e)}
 				onWheel={(e) => { this.onWheelHandler(e) } }
+				onMouseDown={(e) => { this.onMouseDownHandeler(e) } }
+				onMouseUp={(e) => { this.onMouseUpHandler(e) } }
+				onMouseMove={(e) => { this.onDragHandler(e) } }
+
+				// onDragStart={(e) => { this.onDragStartHandler(e) } }
+				// onDrag={(e) => { this.onDragHandler(e) } }
+				// onDragEnd={(e) => { this.onMouseUpHandler(e) } }
+
 				>
 
 				<Arrow />
@@ -444,14 +556,14 @@ class Graph extends Component {
 				</g>
 
 
-				<g className="graph" transform={_tranform}>
+				<g className="graph" transform={_tranform} >
 					{
 						this.state.graph.edges.map((edge, i) => {
 							return <GraphEdge key={i} edge={edge} i={i} />
 						})
 					}
 				</g>
-				<g transform={_tranform}>
+				<g transform={_tranform} >
 					{
 						this.state.graph.nodes.map((node, i) => {
 							return (<GraphNode key={i} node={node} i={i} />);

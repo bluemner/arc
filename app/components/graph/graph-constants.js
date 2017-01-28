@@ -20,6 +20,15 @@ module.exports = {
 	{
 		read: 0,
 		edit: 1
+	},
+	cursor: {
+		default: "default",
+		none: "none",
+		pointer: "pointer",
+		zoomIn: "zoom-in",
+		zoomOut: "zoom-out",
+		grab: "grab",
+		move: "move"
 	}
 
 };

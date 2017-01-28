@@ -71,11 +71,18 @@ g.conceptG rect{
     stroke-miterlimit:	6;
     stroke-linecap:  round;
   }
-  .button:hover{
+
+  .compass-button:hover{
+    fill:  #f0f;
+    stroke:  #000;
     stroke-width:  2;
   }
   .plus-minus{
     fill:  #fff;
     pointer-events: none;
   }
-
+ .plus-minus:hover{
+    fill:  #000;
+   
+    pointer-events: none;
+  }
