@@ -12,6 +12,8 @@ module.exports = {
 		}
 	},
 	edge: {
+		source: -1,
+		target: -2,
 		type: {
 			defualt: 0,
 		}

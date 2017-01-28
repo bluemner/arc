@@ -22,22 +22,22 @@ class Home extends Component {
 		this.make_dummy_graph();
 	}
 	make_dummy_graph() {
-		this.state.graph.nodes.push({ text: "Start", type: constants.node.type.start, tx: 50, ty: 50 });
-		this.state.graph.nodes.push({ text: "Application", type: constants.node.type.state, tx: 300, ty: 50 });
-		this.state.graph.nodes.push({ text: "Special Letter", type: constants.node.type.state, tx: 500, ty: 50 });
-		this.state.graph.nodes.push({ text: "Some really long text", type: constants.node.type.state, tx: 500, ty: 300 });
+		this.state.graph.nodes.push({ id: 6, text: "Start", type: constants.node.type.start, tx: 50, ty: 50 });
+		this.state.graph.nodes.push({ id: 1, text: "Application", type: constants.node.type.state, tx: 300, ty: 50 });
+		this.state.graph.nodes.push({ id: 2, text: "Special Letter", type: constants.node.type.state, tx: 500, ty: 50 });
+		this.state.graph.nodes.push({ id: 3, text: "Some really long text", type: constants.node.type.state, tx: 500, ty: 300 });
 
-		this.state.graph.nodes.push({ text: "end", type: constants.node.type.end, tx: 300, ty: 300 });
-		this.state.graph.edges.push({ source: this.state.graph.nodes[0], target: this.state.graph.nodes[1] });
+		this.state.graph.nodes.push({ id: 4, text: "end", type: constants.node.type.end, tx: 300, ty: 300 });
+		this.state.graph.edges.push({ id: 5, source: this.state.graph.nodes[0], target: this.state.graph.nodes[1] });
 		//1->2
 		//
-		this.state.graph.edges.push({ source: this.state.graph.nodes[1], target: this.state.graph.nodes[2] });
-		this.state.graph.edges.push({ source: this.state.graph.nodes[1], target: this.state.graph.nodes[4] });
+		this.state.graph.edges.push({ id: 1, source: this.state.graph.nodes[1], target: this.state.graph.nodes[2] });
+		this.state.graph.edges.push({ id: 2, source: this.state.graph.nodes[1], target: this.state.graph.nodes[4] });
 
-		this.state.graph.edges.push({ source: this.state.graph.nodes[2], target: this.state.graph.nodes[3] });
-		this.state.graph.edges.push({ source: this.state.graph.nodes[2], target: this.state.graph.nodes[4] });
+		this.state.graph.edges.push({ id: 3, source: this.state.graph.nodes[2], target: this.state.graph.nodes[3] });
+		this.state.graph.edges.push({ id: 4, source: this.state.graph.nodes[2], target: this.state.graph.nodes[4] });
 
-		this.state.graph.edges.push({ source: this.state.graph.nodes[3], target: this.state.graph.nodes[4] });
+		this.state.graph.edges.push({ id: 5, source: this.state.graph.nodes[3], target: this.state.graph.nodes[4] });
 
 	}
 	addNode(text) {

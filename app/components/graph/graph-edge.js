@@ -31,8 +31,8 @@ class GraphEdge extends Component {
 		let _d = "M" + edge.source.tx + "," + edge.source.ty + "L" + edge.target.tx + "," + edge.target.ty;
 		if (edge.source.type === constants.node.type.rombus)
 			_d = "M" + edge.source.tx + "," + (edge.source.ty + 75) + "L" + edge.target.tx + "," + edge.target.ty;
-		return (<g key={i}>
-			<path className="link" d={_d} style={{ "markerEnd": "url(\"#end-arrow\")" }}></path>
+		return (<g key={i} id={"edge_" + edge.id}>
+			<path className="link" id={"edge_" + edge.id} d={_d} style={{ "markerEnd": "url(\"#end-arrow\")" }}></path>
 		</g>)
 
 

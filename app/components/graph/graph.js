@@ -33,8 +33,19 @@ class Graph extends Component {
 			grid: false,
 			selectedNode: null,
 			selectedEdge: null,
+
+			mouseSelect: {
+				rightClick: {
+					node: undefined,
+					edge: undefined
+				},
+				source: null,
+				target: null
+			},
+
 			mouseClickNode: null,
 			mouseDownNode: null,
+			mouseUpNode: null,
 			mouseDownLink: null,
 			mouse: {
 				x: undefined,
@@ -42,6 +53,23 @@ class Graph extends Component {
 			},
 			shift: false,
 			control: false,
+			contextMenu: {
+				left: 0,
+				top: 0,
+				styles: {
+					display: "none",
+					zIndex: "1000",
+					position: "absolute",
+					overflow: "hidden",
+					border: "1px solid #CCC",
+					whiteSpace: "nowrap",
+					background: "#FFF",
+					color: "#333",
+					borderRadius: "5px",
+
+				},
+				active: false
+			}
 		}
 
 	}
@@ -139,11 +167,29 @@ class Graph extends Component {
 	 * @param {object} event - mouse right click dom event 
 	 */
 	onContextMenuHandler(event) {
-		//	event.preventDefault();
-		let _id = (event.target.id) ? event.target.id.split("_")[1] : undefined;
-		if (_id) {
-
+		event.preventDefault(); //disable right click?
+		let _split = event.target.id.split("_");
+		let _id = (event.target.id && _split.length > 1) ? parseInt(_split[1]) : undefined;
+		if (_id && _split[0] === "node") {
+			this.state.mouseSelect.rightClick.node = this.state.graph.nodes.filter((e) => { return e.id === _id })[0];
+			this.state.mouseSelect.rightClick.edge = undefined;
+		} else if (_id && _split[0] === "edge") {
+			this.state.mouseSelect.rightClick.edge = this.state.graph.edges.filter((e) => { return e.id === _id })[0];
+			this.state.mouseSelect.rightClick.node = undefined;
 		}
+
+		let dim = event.currentTarget.getBoundingClientRect();
+
+		let x = parseInt(event.clientX - dim.left);
+		let y = parseInt(event.clientY - dim.top);
+
+
+
+		this.state.contextMenu.left = x;
+		this.state.contextMenu.top = y;
+		this.forceUpdate();
+		this.toggleContextMenu(true);
+
 	}
 
 	/**
@@ -331,7 +377,9 @@ class Graph extends Component {
 
 		console.log("Mouse Down(" + dx + "," + dy + ")");
 	}
-
+	onMouseLeaveHandler(event) {
+		this.toggleContextMenu();
+	}
 	/**
 	 * @desc Mouse Drage  Event Listner
 	 * @param {object} event - mouse drag  dom event 
@@ -354,7 +402,7 @@ class Graph extends Component {
 		// b*x + d*y + f
 		let dy = (b * x) + ((1 / d) * y) - (f / d);
 
-		if (this.state.mouseDownNode) {
+		if (this.state.mouseDownNode && this.state.shift) {
 			//console.log("mouse drag(" + dx + "," + dy + ")");
 			this.state.mouseDownNode.tx = dx;
 			this.state.mouseDownNode.ty = dy;
@@ -374,7 +422,7 @@ class Graph extends Component {
 		let y = parseInt(event.clientY - dim.top);
 
 
-		if (this.state.mouseDownNode) {
+		if (this.state.mouseDownNode && this.state.shift) {
 
 			if (x < 0 || y < 0) { return };
 
@@ -395,6 +443,8 @@ class Graph extends Component {
 			this.state.mouseDownNode.style = {}
 			this.state.mouseDownNode = undefined;
 			this.forceUpdate();
+		} else {
+			let _id = (event.target.id) ? event.target.id.split("_")[1] : undefined;
 		}
 		console.log("mouse up");
 
@@ -424,7 +474,10 @@ class Graph extends Component {
 	addNode(nodes) {
 		this.state.graph.nodes = nodes;
 	}
-
+	addEdge(edge) {
+		this.state.graph.edges.push(edge);
+		this.forceUpdate();
+	}
 	addEdges(edges) {
 		this.state.graph.edges = edges;
 	}
@@ -467,7 +520,48 @@ class Graph extends Component {
 
 		this.forceUpdate();
 	}
+	remove(event) {
+		if (this.state.mouseSelect.rightClick.node) {
+			this.state.graph.nodes = this.state.graph.nodes.filter((e) => { return e.id !== this.state.mouseSelect.rightClick.node.id });
+		} else if (this.state.mouseSelect.rightClick.edge) {
+			this.state.graph.edges = this.state.graph.edges.filter((e) => { return e !== this.state.mouseSelect.rightClick.edge });
+		}
+		this.forceUpdate();
+	}
+	selectNode(event, value) {
+		console.log("here");
 
+
+		if (value === constants.edge.source) {
+			this.state.mouseSelect.source = this.state.mouseSelect.rightClick.node;
+
+		} else if (value === constants.edge.target) {
+			this.state.mouseSelect.target = this.state.mouseSelect.rightClick.node;
+		}
+
+		if (this.state.mouseSelect.source && this.state.mouseSelect.target) {
+			this.addEdge({ id: parseInt(-1 * this.state.graph.edges.length), source: this.state.mouseSelect.source, target: this.state.mouseSelect.target });
+			this.state.mouseSelect.source = undefined;
+			this.state.mouseSelect.target = undefined;
+			this.forceUpdate();
+		}
+	}
+	/**
+	 * @desc toggles the context menu
+	 */
+	toggleContextMenu(active = false) {
+		this.state.contextMenu.active = active;
+		let _style = Object.assign(this.state.contextMenu.styles, {});
+		if (this.state.contextMenu.active) {
+
+			_style.display = "block"
+			this.state.contextMenu.styles = _style;
+		} else {
+			_style.display = "none"
+			this.state.contextMenu.styles = _style;
+		}
+		this.forceUpdate();
+	}
 	/**
 	 * @desc enables edit mode
 	 */
@@ -534,46 +628,51 @@ class Graph extends Component {
 		let _tranform = "matrix(" + this.state.graph.transMatrix.join(' ') + ")";
 
 		return (
-			<svg width={this.state.graph.width} height={this.state.graph.height} style={this.state.graph.style}
-				onDoubleClick={(e) => { this.onDoubleClickHandler(e) } }
-				onClick={(e) => { this.onClickHandler(e) } }
-				onContextMenu={(e) => this.onContextMenuHandler(e)}
-				onWheel={(e) => { this.onWheelHandler(e) } }
-				onMouseDown={(e) => { this.onMouseDownHandeler(e) } }
-				onMouseUp={(e) => { this.onMouseUpHandler(e) } }
-				onMouseMove={(e) => { this.onDragHandler(e) } }
+			<div>
+				<ul className='custom-menu list-group'
+					style={{ left: this.state.contextMenu.left, top: this.state.contextMenu.top, display: this.state.contextMenu.styles.display }}
+					onMouseLeave={(e) => { this.onMouseLeaveHandler(e) } }>
+					<li data-action="add" className="list-group-item">Add node</li>
+					<li data-action="source" className="list-group-item" onClick={(e) => { this.selectNode(e, constants.edge.source) } }>Select Source</li>
+					<li data-action="target" className="list-group-item" onClick={(e) => { this.selectNode(e, constants.edge.target) } }>Select Target</li>
+					<li data-action="target" className="list-group-item" onClick={(e) => { this.remove(e) } }>Delete Target</li>
+				</ul>
+				<svg width={this.state.graph.width} height={this.state.graph.height} style={this.state.graph.style}
+					onDoubleClick={(e) => { this.onDoubleClickHandler(e) } }
+					onClick={(e) => { this.onClickHandler(e) } }
+					onContextMenu={(e) => this.onContextMenuHandler(e)}
+					onWheel={(e) => { this.onWheelHandler(e) } }
+					onMouseDown={(e) => { this.onMouseDownHandeler(e) } }
+					onMouseUp={(e) => { this.onMouseUpHandler(e) } }
+					onMouseMove={(e) => { this.onDragHandler(e) } }
+					>
 
-				// onDragStart={(e) => { this.onDragStartHandler(e) } }
-				// onDrag={(e) => { this.onDragHandler(e) } }
-				// onDragEnd={(e) => { this.onMouseUpHandler(e) } }
+					<Arrow />
 
-				>
-
-				<Arrow />
-
-				<g className="grid" transform={_tranform}>
-					{(this.state.grid || this.state.mode == constants.mode.edit) ? this.makeGrid() : null}
-				</g>
+					<g className="grid" transform={_tranform}>
+						{(this.state.grid || this.state.mode == constants.mode.edit) ? this.makeGrid() : null}
+					</g>
 
 
-				<g className="graph" transform={_tranform} >
-					{
-						this.state.graph.edges.map((edge, i) => {
-							return <GraphEdge key={i} edge={edge} i={i} />
-						})
-					}
-				</g>
-				<g transform={_tranform} >
-					{
-						this.state.graph.nodes.map((node, i) => {
-							return (<GraphNode key={i} node={node} i={i} />);
+					<g className="graph" transform={_tranform} >
+						{
+							this.state.graph.edges.map((edge, i) => {
+								return <GraphEdge key={i} edge={edge} i={i} />
+							})
+						}
+					</g>
+					<g transform={_tranform} >
+						{
+							this.state.graph.nodes.map((node, i) => {
+								return (<GraphNode key={i} node={node} i={i} />);
 
-						})
-					}
-				</g>
+							})
+						}
+					</g>
 
-				<Conroller pan={this.pan.bind(this)} zoom={this.zoom.bind(this)} />
-			</svg>
+					<Conroller pan={this.pan.bind(this)} zoom={this.zoom.bind(this)} />
+				</svg>
+			</div>
 		)
 	}
 };

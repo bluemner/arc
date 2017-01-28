@@ -37,32 +37,32 @@ class GraphNode extends Component {
 
 		switch (node.type) {
 			case constants.node.type.end:
-				return (<g className="conceptG" transform={_translate}  >
-					<circle id={"node_" + i} r="50" style={_style}></circle>
-					<circle id={"node_" + i} r="30" stroke="black" strokeWidth="3" style={{ fill: "red" }} />
+				return (<g id={"node_" + node.id} className="conceptG" transform={_translate}  >
+					<circle id={"node_" + node.id} r="50" style={_style}></circle>
+					<circle id={"node_" + node.id} r="30" stroke="black" strokeWidth="3" style={{ fill: "red" }} />
 					<text textAnchor="middle" dy="0">
 						{this.getText(node.text)}
 					</text>
 				</g>)
 			case constants.node.type.rombus:
 				_style = (node.active) ? { fill: "yellow" } : { fill: "green" }
-				return (<g className="conceptG" transform={_translate} >
-					<rect id={"node_" + i} x="0" y="0" width="100" height="100" rx="10" ry="10" style={_style} transform="rotate(45)"></rect>
+				return (<g id={"node_" + node.id} className="conceptG" transform={_translate} >
+					<rect id={"node_" + node.id} x="0" y="0" width="100" height="100" rx="10" ry="10" style={_style} transform="rotate(45)"></rect>
 					<text textAnchor="middle" dy="75" dx="0">
 						{this.getText(node.text)}
 					</text>
 				</g>)
 			case constants.node.type.start:
-				return (<g className="conceptG" transform={_translate}  >
-					<circle id={"node_" + i} r="50" style={_style}></circle>
+				return (<g id={"node_" + node.id} className="conceptG" transform={_translate}  >
+					<circle id={"node_" + node.id} r="50" style={_style}></circle>
 					<text textAnchor="middle" dy="0">
 						{this.getText(node.text)}
 
 					</text>
 				</g>)
 			case constants.node.type.defualt:
-			default: return (<g className="conceptG" transform={_translate} >
-				<rect id={"node_" + i} x="-50" y="-50" width="100" height="100" rx="10" ry="10" style={_style}></rect>
+			default: return (<g id={"node_" + node.id} className="conceptG" transform={_translate} >
+				<rect id={"node_" + node.id} x="-50" y="-50" width="100" height="100" rx="10" ry="10" style={_style}></rect>
 				<text textAnchor="middle">
 					{
 						this.getText(node.text)
