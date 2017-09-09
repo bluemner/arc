@@ -68,7 +68,7 @@ class Home extends Component {
 					selectedNode={this.selectedNode.bind(this)}
 					edges={this.state.graph.edges}
 					nodes={this.state.graph.nodes}
-					/>
+				/>
 
 			</div >
 		)
