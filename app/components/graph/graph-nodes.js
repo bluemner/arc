@@ -29,11 +29,10 @@ class GraphNode extends Component {
 	 * @param {object} this.props.node - node object 
 	 */
 	render() {
-		const {node, i} = this.props;
+		const { node, i } = this.props;
 		let _translate = "translate(" + (node.tx) + "," + (node.ty) + ")";
 		let _style = (node.style) ? node.style : {};
 		_style = (node.active) ? {} : _style;
-
 
 		switch (node.type) {
 			case constants.node.type.end:
@@ -44,7 +43,7 @@ class GraphNode extends Component {
 						{this.getText(node.text)}
 					</text>
 				</g>)
-			case constants.node.type.rombus:
+			case constants.node.type.rhombus:
 				_style = (node.active) ? { fill: "yellow" } : { fill: "green" }
 				return (<g id={"node_" + node.id} className="conceptG" transform={_translate} >
 					<rect id={"node_" + node.id} x="0" y="0" width="100" height="100" rx="10" ry="10" style={_style} transform="rotate(45)"></rect>
@@ -60,7 +59,20 @@ class GraphNode extends Component {
 
 					</text>
 				</g>)
-			case constants.node.type.defualt:
+			case constants.node.type.entity:
+				// Database entity 
+				return (
+					<g id={"node_" + node.id} className="conceptG" transform={_translate} >
+						<rect id={"node_" + node.id} x="-50" y="-50" width={this.entity_width(node.fields)} height={entity_height(node.fields)} rx="10" ry="10" style={_style}></rect>
+						<text ></text>
+						<text textAnchor="middle">
+							{
+								this.getText(node.text)
+							}
+						</text>
+					</g>
+				)
+			case constants.node.type.default:
 			default: return (<g id={"node_" + node.id} className="conceptG" transform={_translate} >
 				<rect id={"node_" + node.id} x="-50" y="-50" width="100" height="100" rx="10" ry="10" style={_style}></rect>
 				<text textAnchor="middle">

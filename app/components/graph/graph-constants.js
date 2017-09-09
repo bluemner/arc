@@ -4,18 +4,19 @@
 module.exports = {
 	node: {
 		type: {
-			defualt: 0,
+			default: 0,
 			start: 1,
 			end: 2,
 			state: 3,
-			rombus: 4,
+			rhombus: 4,
+			entity: 5
 		}
 	},
 	edge: {
 		source: -1,
 		target: -2,
 		type: {
-			defualt: 0,
+			default: 0,
 		}
 	},
 	mode:
