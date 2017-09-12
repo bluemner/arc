@@ -1,0 +1,10 @@
+--
+-- DATABASE table
+-- 
+CREATE TABLE DATABASE_TYPE(
+	id BIGINT NOT NULL COMMENT 'primary key',
+	name NVARCHAR(100) NOT NULL COMMENT 'Text Name of DATABASE',
+	description NVARCHAR(1000) NULL COMMENT 'Text Descrption of DATABASE',
+	PRIMARY KEY  (id)
+)COMMENT 'DATABASE Type Description '
+;
