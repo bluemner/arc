@@ -26,7 +26,7 @@ class Navigation extends Component {
 					<div id="navigationbar" className="collapse navbar-collapse">
 						<ul id="nav-bar-links" className="nav navbar-nav">
 							<li><a href="/">Home</a></li>
-
+							<li><a href="/Applications">Applications</a></li>
 						</ul>
 					</div>
 				</div>

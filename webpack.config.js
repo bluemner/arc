@@ -33,7 +33,7 @@ module.exports = {
 	},
 	resolve: {
 		root: path.resolve('./app'),
-		extenstions: ['', '.js']
+		extenstions: ['', '.jsx', '.js']
 	},
 	plugin: (isProd) ? [
 		new ClearWebpackPlugin(['dist'], {}),

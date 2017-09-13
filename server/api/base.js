@@ -1,7 +1,7 @@
 "use strict"
 let mysql = require('mysql');
 /**
- * @desc instance of process that handels all the database connects 
+ * @desc instance of process that handles all the database connects 
  */
 class Base {
 	constructor(settings) {

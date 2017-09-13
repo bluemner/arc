@@ -4,7 +4,7 @@ let Base = require('./base');
 Base = Base.Base;
 
 /**
- * @desc instance of process that handels all the database connects 
+ * @desc instance of process that handles all the database connects 
  * @extends Base
  */
 class Process extends Base {
@@ -15,7 +15,7 @@ class Process extends Base {
 	/**
 	 * Get an instance of type process
 	 * @param {INT} id - process id 
-	 * @param {function} after - lambda promiss function (results, fields)
+	 * @param {function} after - lambda promise function (results, fields)
 	 * @override 
 	 */
 	get(id, after) {
@@ -46,7 +46,7 @@ class Process extends Base {
 	/**
 	 * Add an instance of process to the database
 	 * @param {object} process - process to add to the database
-	 * @param {function} after - lambda promiss function (results, fields)
+	 * @param {function} after - lambda promise function (results, fields)
 	 * @override 
 	 */
 	add(process, after) {
@@ -70,7 +70,7 @@ class Process extends Base {
 	/**
 	 * Delete an instance of type process from database
 	 * @param {INT} id - process id 
-	 * @param {function} after - lambda promiss function (results, fields)
+	 * @param {function} after - lambda promise function (results, fields)
 	 * @override 
 	 */
 	delete(id, after) {
@@ -83,7 +83,7 @@ class Process extends Base {
 	/**
 	 * Update an instance of process to the database
 	 * @param {object} process - process to add to the database
-	 * @param {function} after - lambda promiss function (results, fields)
+	 * @param {function} after - lambda promise function (results, fields)
 	 * @override
 	 */
 	update(process, after) {

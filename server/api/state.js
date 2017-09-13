@@ -15,7 +15,7 @@ class State extends Base {
 	/**
 	 * Get an instance of type state
 	 * @param {INT} id - state id 
-	 * @param {function} after - lambda promiss function (results, fields)
+	 * @param {function} after - lambda promise function (results, fields)
 	 * @override 
 	 */
 	get(id, after) {
@@ -47,7 +47,7 @@ class State extends Base {
 	/**
 	 * Add an instance of state to the database
 	 * @param {object} state - state to add to the database
-	 * @param {function} after - lambda promiss function (results, fields)
+	 * @param {function} after - lambda promise function (results, fields)
 	 * @override
 	 */
 	add(state, after) {
@@ -72,7 +72,7 @@ class State extends Base {
 	/**
 	 * Delete an instance of type state from database
 	 * @param {INT} id - state id 
-	 * @param {function} after - lambda promiss function (results, fields)
+	 * @param {function} after - lambda promise function (results, fields)
 	 * @override
 	 */
 	delete(id, after) {
@@ -84,7 +84,7 @@ class State extends Base {
 	/**
 	 * Update an instance of state to the database
 	 * @param {object} state - state to add to the database
-	 * @param {function} after - lambda promiss function (results, fields)
+	 * @param {function} after - lambda promise function (results, fields)
 	 * @override
 	 */
 	update(state, after) {
